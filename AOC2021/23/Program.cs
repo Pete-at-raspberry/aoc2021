@@ -20,17 +20,16 @@ namespace _23
             #C#D#D#A#
             #########
         */
-        static String input1 = "BCBD";
-        static String input2 = "ADCA";
-        //static String input1 = "BCAB";
-        //static String input2 = "CDDA";
+        //static String input1 = "BCBD";
+        //static String input2 = "ADCA";
+        static String input1 = "BCAB";
+        static String input2 = "CDDA";
 
 
         static void Main(string[] args)
         {
             Console.WriteLine("Start day 23");
             Board bd = SetupBoard();
-            bd.Print();
             // Play...
             bd.TryAllMoves();
 
@@ -50,7 +49,7 @@ namespace _23
 
     public class Board
     {
-        public static int minEnergy = 0;
+        public static int minEnergy = Int32.MaxValue;
         public static List<Board> minBoards;
         char[] hall = new char[11];
         char[] roomA = new char[2];
@@ -106,7 +105,8 @@ namespace _23
                 {
                     if (energy < minEnergy)
                     {
-                        Console.WriteLine($"Found new min energy ${energy}");
+                        Console.WriteLine($"Found new min energy {energy}");
+                        minEnergy = energy;
                         minBoards = new List<Board>(boards.ToArray());
                     }
                 }
@@ -142,7 +142,7 @@ namespace _23
                         {
                             // All good. Allow this move. 
                             Move m = new Move();
-                            m.fromIdx = start;
+                            m.fromIdx = i;
                             m.fromLoc = 'H';
                             m.toIdx = (room[1] == '.') ? 1 : 0;
                             m.toLoc = p;
@@ -174,7 +174,7 @@ namespace _23
                 if (piece != '.')
                 {
                     // Can't move if this is in the correct location and not blocking another
-                    if (piece == roomName && (pos == 1 || room[0] == roomName))
+                    if (piece == roomName && (pos == 1 || room[1] == roomName))
                         continue;
 
                     // Try a home run first
@@ -243,7 +243,7 @@ namespace _23
             return true;
         }
 
-        private int GetRoomEntranceIdx(char rm)
+        public static int GetRoomEntranceIdx(char rm)
         {
             switch (rm)
             {
@@ -323,8 +323,30 @@ namespace _23
         // Calculate the energy required for this move
         public void FindEnergy(char piece)
         {
-            int pieceValue = 10 ^(piece - 'A');
-            energy = pieceValue;
+            int pieceValue = 1;
+            while (piece > 'A')
+            {
+                piece--;
+                pieceValue *= 10;
+            }
+
+            // Count the steps. 
+            int hStart = fromIdx;
+            int rStart = 0;
+            if (fromLoc != 'H')
+            {
+                hStart = Board.GetRoomEntranceIdx(fromLoc);
+                rStart = fromIdx + 1;
+            }
+            int hEnd = toIdx;
+            int rEnd = 0;
+            if (toLoc != 'H')
+            {
+                hEnd = Board.GetRoomEntranceIdx(toLoc);
+                rEnd = toIdx + 1;
+            }
+
+            energy = pieceValue * (Math.Abs(hEnd - hStart) + rStart + rEnd);
         }
     }
 }
