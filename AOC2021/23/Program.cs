@@ -19,6 +19,15 @@ namespace _23
           ###B#C#A#B###
             #C#D#D#A#
             #########
+
+        * Part 2!! 2 extra lines in the middle.
+        *   #############
+            #...........#
+            ###B#C#B#D###
+              #D#C#B#A#
+              #D#B#A#C#
+              #A#D#C#A#
+              #########
         */
         //static String input1 = "BCBD";
         //static String input2 = "ADCA";
