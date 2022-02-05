@@ -43,11 +43,11 @@ namespace _23
             // Play...
             bd.TryAllMoves();
 
-            foreach(Board b in Board.minBoards)
+            foreach(Board2 b in Board2.minBoards)
             {
                 b.Print();
             }
-            Console.WriteLine($"Minimum energy is {Board.minEnergy}");
+            Console.WriteLine($"Minimum energy is {Board2.minEnergy}");
         }
 
         static private Board SetupBoard()
@@ -424,7 +424,10 @@ namespace _23
                     char[] room = GetArrFromLoc(p);
 
                     // Only if the destination contains only those type
-                    if ((room[0] == '.' && room[1] == p) || (room[0] == '.' && room[1] == '.'))
+                    if ((room[0] == '.' && room[1] == p && room[2] == p && room[3] == p)
+                        || (room[0] == '.' && room[1] == '.' && room[2] == p && room[3] == p)
+                        || (room[0] == '.' && room[1] == '.' && room[2] == '.' && room[3] == p)
+                        || (room[0] == '.' && room[1] == '.' && room[2] == '.' && room[3] == '.'))
                     {
                         int entrance = GetRoomEntranceIdx(p);
                         int start = (entrance > i) ? i + 1 : i - 1;
@@ -435,6 +438,10 @@ namespace _23
                             m.fromIdx = i;
                             m.fromLoc = 'H';
                             m.toIdx = (room[1] == '.') ? 1 : 0;
+                            if (room[2] == '.')
+                                m.toIdx = 2;
+                            if (room[3] == '.')
+                                m.toIdx = 3;
                             m.toLoc = p;
                             m.FindEnergy(p);
                             allMoves.Add(m);
@@ -450,35 +457,47 @@ namespace _23
                 int hallStart = GetRoomEntranceIdx(roomName);
                 char piece = '.';
                 int pos = 0;
-                if (room[0] != '.')
+                for (; pos < 4; ++pos)
                 {
-                    // Got a piece next to the hall
-                    piece = room[0];
-                }
-                else if (room[1] != '.')
-                {
-                    // Got a piece next to the wall
-                    piece = room[1];
-                    pos = 1;
+                    if (room[pos] != '.')
+                    {
+                        piece = room[pos];
+                        break;
+                    }
                 }
                 if (piece != '.')
                 {
                     // Can't move if this is in the correct location and not blocking another
-                    if (piece == roomName && (pos == 1 || room[1] == roomName))
-                        continue;
+                    if (piece == roomName)
+                    {
+                        bool inRightPlace = true;
+                        for (int ii=pos + 1; ii<4; ++ii)
+                        {
+                            if (room[ii] != roomName)
+                            {
+                                inRightPlace = false;
+                                break;
+                            }
+                        }
+                        if (inRightPlace)
+                            continue;
+                    }
 
                     // Try a home run first
                     if (piece != roomName)
                     {
                         int destPos = -1;
                         char[] destRoom = GetArrFromLoc(piece);
-                        if (destRoom[0] == '.' && destRoom[1] == piece)
+                        
+                        for (int destTest = 3; destTest >= 0; --destTest)
                         {
-                            destPos = 0;
-                        }
-                        else if (destRoom[0] == '.' && destRoom[1] == '.')
-                        {
-                            destPos = 1;
+                            if (destRoom[destTest] == '.')
+                            {
+                                destPos = destTest;
+                                break;
+                            }
+                            else if (destRoom[destTest] != piece)
+                                break;
                         }
                         if (destPos != -1)
                         {
