@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 
+// This one did NOT go well. 
+// The lesson perhaps is to not try to be too clever - if the right answer is to collide cuboids, then
+// start off by thinking about the best way to collide cuboids. 
+
 namespace _22
 {
     class Program
