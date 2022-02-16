@@ -30,46 +30,64 @@ namespace _24
             for (int i0 = 9; i0 > 0; --i0)
             {
                 OpCode.input[0].v = i0;
+                ALU.inputs[0] = i0;
                 for (int i1 = 9; i1 > 0; --i1)
                 {
                     OpCode.input[1].v = i1;
+                    ALU.inputs[1] = i1;
                     for (int i2 = 9; i2 > 0; --i2)
                     {
                         OpCode.input[2].v = i2;
+                        ALU.inputs[2] = i2;
                         for (int i3 = 9; i3 > 0; --i3)
                         {
                             OpCode.input[3].v = i3;
+                            ALU.inputs[3] = i3;
                             for (int i4 = 9; i4 > 0; --i4)
                             {
                                 OpCode.input[4].v = i4;
+                                ALU.inputs[4] = i4;
                                 for (int i5 = 9; i5 > 0; --i5)
                                 {
                                     OpCode.input[5].v = i5;
+                                    ALU.inputs[5] = i5;
                                     for (int i6 = 9; i6 > 0; --i6)
                                     {
                                         OpCode.input[6].v = i6;
+                                        ALU.inputs[6] = i6;
                                         for (int i7 = 9; i7 > 0; --i7)
                                         {
                                             OpCode.input[7].v = i7;
+                                            ALU.inputs[7] = i7;
                                             for (int i8 = 9; i8 > 0; --i8)
                                             {
                                                 OpCode.input[8].v = i8;
+                                                ALU.inputs[8] = i8;
                                                 for (int i9 = 9; i9 > 0; --i9)
                                                 {
                                                     OpCode.input[9].v = i9;
+                                                    ALU.inputs[9] = i9;
                                                     for (int i10 = 9; i10 > 0; --i10)
                                                     {
                                                         OpCode.input[10].v = i10;
+                                                        ALU.inputs[10] = i10;
                                                         for (int i11 = 9; i11 > 0; --i11)
                                                         {
                                                             OpCode.input[11].v = i11;
+                                                            ALU.inputs[11] = i11;
                                                             for (int i12 = 9; i12 > 0; --i12)
                                                             {
                                                                 OpCode.input[12].v = i12;
+                                                                ALU.inputs[12] = i12; 
                                                                 for (int i13 = 9; i13 > 0; --i13)
                                                                 {
                                                                     OpCode.input[13].v = i13;
-                                                                    if (OpCode.Execute() == 0)
+                                                                    ALU.inputs[13] = i13;
+                                                                    //int z1 = OpCode.Execute();
+                                                                    int z2 = ALU.Run();
+                                                                    //if (z2 != z1)
+                                                                      //  throw new Exception("Gone wrong");
+                                                                    if (z2 == 0)
                                                                     {
                                                                         // Done it. 
                                                                         Console.WriteLine($"Found Lowest at {i0}{i1}{i2}{i3}{i4}{i5}{i6}{i7}{i8}{i9}{i10}{i11}{i12}{i13}");
@@ -90,6 +108,82 @@ namespace _24
                 }
             }
         }
+    }
+
+    // Loop through this: 
+        //inp w
+        //mul x 0
+        //add x z
+        //mod x 26
+        //div z 1
+        //add x 15
+        //eql x w
+        //eql x 0
+        //mul y 0
+        //add y 25
+        //mul y x
+        //add y 1
+        //mul z y
+        //mul y 0
+        //add y w
+        //add y 15
+        //mul y x
+        //add z y
+
+    // ALU
+    public class ALU
+    {
+        public static int w;
+        public static int x;
+        public static int y;
+        public static int z;
+        public static int[] inputs = new int[14];
+
+        public static int[] firstParam =    { 0,   0,  0,   1,  0,  1,  0,  0,  0,  1,  1,  1,  1, 1 };
+        public static int[] secondParam =   { 15, 12, 13, -14, 15, -7, 14, 15, 15, -7, -8, -7, -5, -10 };
+        public static int[] thirdParam =    { 15,  5,  6,   7,  9,  6, 14,  3,  1,  3,  4,  6,  7, 1 };
+
+        public ALU() { }
+
+        public static int Run()
+        {
+            w = x = y = z = 0;
+            for (int loop = 0; loop < firstParam.Length; ++loop)
+            {
+                //inp w
+                w = inputs[loop];
+                //mul x 0
+                //add x z
+                //mod x 26
+                x = z % 26;
+                //div z 1 or 26
+                if (firstParam[loop] > 0)
+                    z /= 26;
+                //add x 15
+                x += secondParam[loop];
+                //eql x w
+                //eql x 0
+                //mul y 0
+                //add y 25
+                //mul y x
+                //add y 1
+                if (x != w)
+                {
+                    y = 26;
+                    //mul z y
+                    z *= y;
+                    //mul y 0
+                    //add y w
+                    //add y 15
+                    y = w + thirdParam[loop];
+                    //mul y x
+                    //add z y
+                    z += y;
+                }
+            }
+            return z;
+        }
+
     }
 
     // Operands.
