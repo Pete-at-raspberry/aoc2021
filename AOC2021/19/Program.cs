@@ -17,7 +17,7 @@ namespace _19
 
         static void ReadInput()
         {
-            using (StreamReader inputRdr = new StreamReader("d:\\adventofcode\\AOC2021\\19\\example.txt"))
+            using (StreamReader inputRdr = new StreamReader("d:\\adventofcode\\AOC2021\\19\\input.txt"))
             {
                 Scanner s = null;
                 // Read each instruction line
@@ -99,6 +99,7 @@ namespace _19
         public bool Intersects(List<XYZ> allBeacons)
         {
             bool intersects = false;
+            Console.WriteLine($"Trying {name}");
 
             // Try a pair of points in the beacons list.
             for (int bFromIdx = 0; bFromIdx < allBeacons.Count - 1; ++bFromIdx)
@@ -117,13 +118,29 @@ namespace _19
                             {
                                 // Found potential match!!!
                                 orient = new Orientation(existXYZ, newXYZ);
+                                if (orient.Failed())
+                                {
+                                    break;
+                                }
                                 XYZ newBeaconPos = orient.orient(beacons[sFromIdx]);
                                 offset = allBeacons[bFromIdx].Minus(newBeaconPos);  // newBeaconPos.Minus(allBeacons[bFromIdx]);
-                                if (!allBeacons[bToIdx].Equals(AdjustedXYZ(beacons[sToIdx])))
+                                if (SeeIfItsOK(allBeacons))
                                 {
-                                    offset = allBeacons[bToIdx].Minus(newBeaconPos); // newBeaconPos.Minus(allBeacons[bToIdx]);
-                                    if (!allBeacons[bFromIdx].Equals(AdjustedXYZ(beacons[sToIdx])))
-                                        throw new Exception("Makes no sense");
+                                    Console.WriteLine("Found it");
+                                    return true;
+                                }
+                                else
+                                {
+                                    // Try the other way around. 
+                                    newXYZ = beacons[sToIdx].Minus(beacons[sFromIdx]);
+                                    orient = new Orientation(existXYZ, newXYZ);
+                                    offset = allBeacons[bFromIdx].Minus(newBeaconPos);  // newBeaconPos.Minus(allBeacons[bFromIdx]);
+                                    if (SeeIfItsOK(allBeacons))
+                                    {
+                                        Console.WriteLine("Found it");
+                                        return true;
+                                    }
+
                                 }
                             }
                         }
@@ -134,14 +151,44 @@ namespace _19
             return intersects;
         }
 
-        public void AddBeaconsToList(List<XYZ> allBeacons)
+        private bool SeeIfItsOK(List<XYZ> allBeacons)
         {
+            int matchCount = 0;
+            // Go through all the beacons and see if at least 12 match up with the locations. 
             foreach(XYZ b in beacons)
             {
-                XYZ beacon = AdjustedXYZ(b);
-                if (!allBeacons.Contains(beacon))
-                    allBeacons.Add(beacon);
+                XYZ pos = AdjustedXYZ(b);
+                foreach(XYZ bcn in allBeacons)
+                {
+                    if (bcn.IsEqual(pos))
+                    {
+                        ++matchCount;
+                        break;
+                    }
+                }
             }
+            return matchCount >= 12;
+        }
+
+        public void AddBeaconsToList(List<XYZ> allBeacons)
+        {
+            List<XYZ> toAdd = new List<XYZ>();
+            foreach(XYZ b in beacons)
+            {
+                bool found = false;
+                XYZ beacon = AdjustedXYZ(b);
+                foreach (XYZ bcn in allBeacons)
+                {
+                    if (bcn.IsEqual(beacon))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    toAdd.Add(beacon);
+            }
+            allBeacons.AddRange(toAdd);
         }
 
         private XYZ AdjustedXYZ(XYZ xyz)
@@ -172,6 +219,11 @@ namespace _19
             return new XYZ(x + b.x, y + b.y, z + b.z);
         }
 
+        public bool IsEqual(XYZ b)
+        {
+            return b.x == x && b.y == y && b.z == z;
+        }
+
         public long Checksum()
         {
             int p, q, r;
@@ -198,57 +250,69 @@ namespace _19
         // Work out the orientation from two (equal) XYZs with differing orients
         public Orientation(XYZ a, XYZ b)
         {
-            if (Math.Abs(a.x) == Math.Abs(b.x))
+            try
             {
-                xFrom = 'X';
-                xNeg = a.x != b.x;
-            }
-            else if (Math.Abs(a.x) == Math.Abs(b.y))
-            {
-                xFrom = 'Y';
-                xNeg = a.x != b.y;
-            }
-            else if (Math.Abs(a.x) == Math.Abs(b.z))
-            {
-                xFrom = 'Z';
-                xNeg = a.x != b.z;
-            }
-            else throw new Exception("Can't match on X!");
-            if (Math.Abs(a.y) == Math.Abs(b.x))
-            {
-                yFrom = 'X';
-                yNeg = a.y != b.x;
-            }
-            else if (Math.Abs(a.y) == Math.Abs(b.y))
-            {
-                yFrom = 'Y';
-                yNeg = a.y != b.y;
-            }
-            else if (Math.Abs(a.y) == Math.Abs(b.z))
-            {
-                yFrom = 'Z';
-                yNeg = a.y != b.z;
-            }
-            else throw new Exception("Can't match on Y!");
-            if (Math.Abs(a.z) == Math.Abs(b.x))
-            {
-                zFrom = 'X';
-                zNeg = a.z != b.x;
-            }
-            else if (Math.Abs(a.z) == Math.Abs(b.y))
-            {
-                zFrom = 'Y';
-                zNeg = a.z != b.y;
-            }
-            else if (Math.Abs(a.z) == Math.Abs(b.z))
-            {
-                zFrom = 'Z';
-                zNeg = a.z != b.z;
-            }
-            else throw new Exception("Can't match on Z!");
+                if (Math.Abs(a.x) == Math.Abs(b.x))
+                {
+                    xFrom = 'X';
+                    xNeg = a.x != b.x;
+                }
+                else if (Math.Abs(a.x) == Math.Abs(b.y))
+                {
+                    xFrom = 'Y';
+                    xNeg = a.x != b.y;
+                }
+                else if (Math.Abs(a.x) == Math.Abs(b.z))
+                {
+                    xFrom = 'Z';
+                    xNeg = a.x != b.z;
+                }
+                else throw new Exception("Can't match on X!");
+                if (Math.Abs(a.y) == Math.Abs(b.x))
+                {
+                    yFrom = 'X';
+                    yNeg = a.y != b.x;
+                }
+                else if (Math.Abs(a.y) == Math.Abs(b.y))
+                {
+                    yFrom = 'Y';
+                    yNeg = a.y != b.y;
+                }
+                else if (Math.Abs(a.y) == Math.Abs(b.z))
+                {
+                    yFrom = 'Z';
+                    yNeg = a.y != b.z;
+                }
+                else throw new Exception("Can't match on Y!");
+                if (Math.Abs(a.z) == Math.Abs(b.x))
+                {
+                    zFrom = 'X';
+                    zNeg = a.z != b.x;
+                }
+                else if (Math.Abs(a.z) == Math.Abs(b.y))
+                {
+                    zFrom = 'Y';
+                    zNeg = a.z != b.y;
+                }
+                else if (Math.Abs(a.z) == Math.Abs(b.z))
+                {
+                    zFrom = 'Z';
+                    zNeg = a.z != b.z;
+                }
+                else throw new Exception("Can't match on Z!");
 
-            if (xFrom == yFrom || xFrom == zFrom || yFrom == zFrom)
-                throw new Exception("Matching gone wrong");
+                if (xFrom == yFrom || xFrom == zFrom || yFrom == zFrom)
+                    throw new Exception("Matching gone wrong");
+            }
+            catch(Exception e)
+            {
+                xFrom = '.';
+            }
+        }
+
+        public bool Failed()
+        {
+            return xFrom == '.';
         }
 
         public XYZ orient(XYZ i)
