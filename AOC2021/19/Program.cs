@@ -70,7 +70,21 @@ namespace _19
             }
 
 
-            Console.WriteLine($"Beacon count is {allBeacons.Count}");
+            Console.WriteLine($"Part 1 - Beacon count is {allBeacons.Count}");
+
+            // Part 2 - find the shortest Manhatten distance.
+            int longest = 0;
+            for (int i=0; i< placedScanners.Count - 1; ++i)
+            {
+                for (int j = i +1; j<placedScanners.Count; ++j)
+                {
+                    int diff = placedScanners[i].FindDiff(placedScanners[j]);
+                    if (diff > longest)
+                        longest = diff;
+                }
+            }
+
+            Console.WriteLine($"Part 2 - longest Manhatten is {longest}");
         }
     }
 
@@ -93,6 +107,12 @@ namespace _19
             int y = int.Parse(numbers[1].Trim());
             int z = int.Parse(numbers[2].Trim());
             beacons.Add(new XYZ(x, y, z));
+        }
+
+        public int FindDiff(Scanner b)
+        {
+            XYZ d = offset.Minus(b.offset);
+            return (int)d.Checksum();
         }
 
         // Work out if it intersects, and set the orientation and offset (of s) accordingly.
@@ -188,7 +208,7 @@ namespace _19
                 if (!found)
                     toAdd.Add(beacon);
             }
-            allBeacons.AddRange(toAdd);
+            allBeacons.InsertRange(0, toAdd);
         }
 
         private XYZ AdjustedXYZ(XYZ xyz)
