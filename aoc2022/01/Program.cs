@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace _01
 {
     class Program
     {
-        static List<Int32> input = new List<Int32>();
+        static List<String> input = new List<String>();
 
         static void Main(string[] args)
         {
@@ -22,7 +23,7 @@ namespace _01
                 while (!inputRdr.EndOfStream)
                 {
                     String line = inputRdr.ReadLine();
-                    input.Add(Int32.Parse(line));
+                    input.Add(line);
                 }
             }
         }
@@ -30,36 +31,49 @@ namespace _01
         static void Part1()
         {
             Console.WriteLine("Part1");
-            int up = 0;
-            int down = 0;
+            int sum = 0;
+            int max = 0;
             for (int n = 0; n < input.Count - 1; ++n)
             {
-                if (input[n] > input[n + 1])
-                    down++;
-                else if (input[n] < input[n + 1])
-                    up++;
+                if (input[n].Length == 0)
+                {
+                    if (max < sum)
+                        max = sum;
+                    sum = 0;
+                }
+                else
+                {
+                    sum = sum + Int32.Parse(input[n]);
+                }
             }
 
-            Console.WriteLine($"Increased {up} times");
+            Console.WriteLine($"Max was {max}");
         }
 
         static void Part2()
         {
             Console.WriteLine("Part2");
-            int up = 0;
-            int down = 0;
-            for (int n = 0; n < input.Count - 3; ++n)
+            int sum = 0;
+            List<Int32> sums = new List<int>();
+            for (int n = 0; n < input.Count - 1; ++n)
             {
-                Int32 window1 = input[n] + input[n + 1] + input[n + 2];
-                Int32 window2 = input[n + 1] + input[n + 2] + input[n + 3];
-
-                if (window1 > window2)
-                    down++;
-                else if (window1 < window2)
-                    up++;
+                if (input[n].Length == 0)
+                {
+                    sums.Add(sum);
+                    sum = 0;
+                }
+                else
+                {
+                    sum = sum + Int32.Parse(input[n]);
+                }
             }
 
-            Console.WriteLine($"Increased {up} times");
+            // Find the top ones. 
+            sums.Sort();
+            int m1 = sums[sums.Count - 1];
+            int m2 = sums[sums.Count - 2];
+            int m3 = sums[sums.Count - 3];
+            Console.WriteLine($"Max was {m1}, {m2}, {m3} = {m1+m2+m3}");
         }
     }
 }
