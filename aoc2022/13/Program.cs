@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace _10
+namespace _13
 {
     internal class Program
-    { 
+    {
         static List<String> input = new List<String>();
 
         static void Main(string[] args)
