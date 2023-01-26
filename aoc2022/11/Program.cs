@@ -116,9 +116,9 @@ namespace _11
                         default: throw new Exception("Don't understand operator " + opCode);
                     }
                     // Part 1 worry levels
-                    val = val / 3;
+                    //val = val / 3;
                     // Part 2 worry levels
-                    val = val / 3 - 4;
+                    val = val / 3 + 52;
                     // Do the test
                     if (val % testVal == 0)
                     {
